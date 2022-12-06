@@ -85,5 +85,8 @@
    - должно отобразиться надпись Hello world from Nginx container! SERVER 1
    - обновить страницу должно отобразиться надпись Hello world from Nginx container! SERVER 2
  
+ ## Схема сети:
+ ![screenshot](https://github.com/Ascalonking/test_task_servionika/blob/main/task_2/network%20diagram.png)
+ 
  ## PR checklist
  - [X] Выставил label с темой тестового задания
