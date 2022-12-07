@@ -1,0 +1,61 @@
+---
+- name: NGINX | Install and configure NGINX
+  hosts: webservers
+  become: yes
+  vars:
+    nginx_listen_port: 8080
+
+  tasks:
+    - name: NGINX | Install NGINX package 
+      apt:
+        name: nginx
+        state: latest
+      notify:
+        - restart nginx
+      tags:
+        - nginx-package
+        - packages
+
+    - name: NGINX | Create NGINX config file from template
+      template:
+        src: nginx.conf.j2
+        dest: /tmp/nginx.conf
+      notify:
+        - reload nginx
+      tags:
+      - nginx-configuration
+
+  handlers: #создадим handler для рестарта и включения сервиса при загрузке
+    - name: restart nginx
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
+    
+    - name: reload nginx #Перечитываем конфиг
+      systemd:
+        name: nginx
+        state: reloaded
+    
+
+- name: NGINX | Install and configure NGINX
+  hosts: web1
+  become: yes
+  tasks:
+    - name: NGINX | Create NGINX html file in Web SERVER 1
+      lineinfile: 
+        path: /var/www/html/index.nginx-debian.html
+        regexp: '<h1>Welcome to nginx!</h1>' 
+        line: '<h1>Hello world from Nginx container! SERVER 1</h1>' #Hello world from Nginx container! SERVER 1
+        backrefs: yes
+
+- name: NGINX | Install and configure NGINX
+  hosts: web2
+  become: yes
+  tasks:
+    - name: NGINX | Create NGINX html file in Web SERVER 2
+      lineinfile: 
+        path: /var/www/html/index.nginx-debian.html
+        regexp: '<h1>Welcome to nginx!</h1>' 
+        line: '<h1>Hello world from Nginx container! SERVER 2</h1>' #Hello world from Nginx container! SERVER 2
+        backrefs: yes
