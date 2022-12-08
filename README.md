@@ -48,13 +48,13 @@
 # Выполнение тестового задания № 2
 
  - [X] Задание 2.1
- - [ ] Задание 2.2 (усложненное)
+ - [X] Задание 2.2 (усложненное)
 
-## Задание:
-Создать 2 WEB сервера с выводом страницы «Hello Word! \n Server 1» (аналогично для второго Server 2). Сделать балансировку нагрузки (HA + keepalived), чтобы при обновлении страницы мы попадали на любой из WEB серверов(Для балансировки можно сделать 2 отдельных сервера, в сумме 4).
-Будет плюсом использование Docker.
+ ## Задание:
+ Создать 2 WEB сервера с выводом страницы «Hello Word! \n Server 1» (аналогично для второго Server 2). Сделать балансировку нагрузки (HA + keepalived), чтобы при обновлении страницы мы попадали на любой из WEB серверов(Для балансировки можно сделать 2 отдельных сервера, в сумме 4).
+ Будет плюсом использование Docker.
 
-## В процессе сделано:
+ ## В процессе сделано:
 
  1. На систему виртуализации (VirtualBox), были созданы 6 vm на базе дистрибутивов 2 Web Servers (Ubuntu 20.04), 2 Proxy servers (Ubuntu 20.04) и 2 routers (RouterOS 7);
  2. На вм машшинах RouterOS поднял сеть и настроил vrrp. команды по настрйоке находятс в '''Router 1''' и '''Router 2'''
@@ -82,11 +82,55 @@
  - Для проверки работоспособности HAProxy 1 перейдите по url в браузере http://192.168.1.80/haproxy?stats
 
  - Для проверки работоспособности keepalived перейдите по url в браузере 192.168.1.100
-   - должно отобразиться надпись Hello world from Nginx container! SERVER 1
-   - обновить страницу должно отобразиться надпись Hello world from Nginx container! SERVER 2
- 
+ - должно отобразиться надпись Hello world from Nginx container! SERVER 1
+ - обновить страницу должно отобразиться надпись Hello world from Nginx container! SERVER 2
+
  ## Схема сети:
  ![screenshot](https://github.com/Ascalonking/test_task_servionika/blob/main/task_2/network%20diagram.png)
- 
+# Выполнение тестового задания № 2
+
+ ## Задание:
+ Написать роль на Ansible по развёртыванию стенда из Задание 2.1. Должен быть описан файл инвентори с серверами по примеру:
+ [loadbalancers]
+ ha1 ansible_host=10.10.1.1
+ ha2 ansible_host=10.10.1.2
+ [webservers]
+ web1 ansible_host=10.10.1.1
+ web2 ansible_host=10.10.1.2
+ Можно написать 1 большую роль, либо 3 роли и потом вызвать их поочёрдно.
+ Роль Nginx – устанавливает и конфигурирует Nginx на группе хостов [webservers].
+ Роль HA Proxy – устанавливает и конфигурирует HA Proxy на группе хостов [loadbalancers].
+ Роль Keepalived – устанавливает и конфигурирует Keepalived на группе хостов [loadbalancers].
+ Конфиги nginx, HA proxy, keepalived оформить, используя шаблоны Jinja2(язык шаблонов).
+ Пример использования шаблонов Jinja2:
+ В каталоге /roles/nginx/templates создаётся конфиг nginx.conf, далее в роле мы используем данный конфиг
+ - name: Add nginx config
+	  template:
+	     src=template/nginx.conf
+     dest=/etc/nginx/nginx.conf
+
+ Итоговый playbook объединяющий три роли может выглядеть следующим образом.
+ - hosts: webservers
+ become: yes
+ roles:
+ - nginx
+ - hosts: loadbalancers
+ become: yes
+ roles:
+ - ha-proxy
+ - hosts: loadbalancers
+ become: yes
+ roles:
+ - keepalived
+ Запуск итогового playbook примерно выглядит так
+ Ansible-playbook –i <inventory_file>  nginx_haproxy_ha.yml
+
+ ## В процессе сделано:
+
+ 1. Написана роль на Ansible по развёртыванию стенда из задание 2.1. 
+
+ ## Как проверить работоспособность:
+  - Выполнить команду ansible-playbook playbooks/nginx.yml
+
  ## PR checklist
  - [X] Выставил label с темой тестового задания
