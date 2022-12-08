@@ -87,21 +87,26 @@
 
  ## Схема сети:
  ![screenshot](https://github.com/Ascalonking/test_task_servionika/blob/main/task_2/network%20diagram.png)
-# Выполнение тестового задания № 2
+
+# Выполнение тестового задания № 2.2
 
  ## Задание:
  Написать роль на Ansible по развёртыванию стенда из Задание 2.1. Должен быть описан файл инвентори с серверами по примеру:
+
  [loadbalancers]
  ha1 ansible_host=10.10.1.1
  ha2 ansible_host=10.10.1.2
+ 
  [webservers]
  web1 ansible_host=10.10.1.1
  web2 ansible_host=10.10.1.2
+ 
  Можно написать 1 большую роль, либо 3 роли и потом вызвать их поочёрдно.
  Роль Nginx – устанавливает и конфигурирует Nginx на группе хостов [webservers].
  Роль HA Proxy – устанавливает и конфигурирует HA Proxy на группе хостов [loadbalancers].
  Роль Keepalived – устанавливает и конфигурирует Keepalived на группе хостов [loadbalancers].
  Конфиги nginx, HA proxy, keepalived оформить, используя шаблоны Jinja2(язык шаблонов).
+ 
  Пример использования шаблонов Jinja2:
  В каталоге /roles/nginx/templates создаётся конфиг nginx.conf, далее в роле мы используем данный конфиг
  - name: Add nginx config
@@ -122,6 +127,7 @@
  become: yes
  roles:
  - keepalived
+ 
  Запуск итогового playbook примерно выглядит так
  Ansible-playbook –i <inventory_file>  nginx_haproxy_ha.yml
 
