@@ -2,8 +2,6 @@
 - name: NGINX | Install and configure NGINX
   hosts: webservers
   become: yes
-  vars:
-    nginx_listen_port: 8080
 
   tasks:
     - name: NGINX | Install NGINX package 
@@ -59,3 +57,80 @@
         regexp: '<h1>Welcome to nginx!</h1>' 
         line: '<h1>Hello world from Nginx container! SERVER 2</h1>' #Hello world from Nginx container! SERVER 2
         backrefs: yes
+
+- name: Loadbalancers | Install and configure HAProxy and Keepalived
+  hosts: loadbalancers
+  become: yes
+
+  tasks:
+    - name: HAProxy | Install HAProxy package 
+      apt:
+        name: haproxy
+        state: present 
+
+    - name: Keepalived | Install Keepalived  package 
+      apt:
+        name: keepalived
+      tags:
+        - haproxy-package
+        - keepalived-package
+        - packages
+
+    - name: Configure HAProxy
+      template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+      - restart haproxy
+
+  handlers: #создадим handler для рестарта и включения сервиса при загрузке
+    - name: restart haproxy
+      systemd:
+        name: haproxy
+        state: restarted
+        enabled: yes
+
+- name: Loadbalancers | Сonfigure Keepalived HA1
+  hosts: ha1
+  become: yes
+
+  tasks:
+    - name: Configure Keepalived HA1
+      template:
+        src: ha1_keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+        owner: root
+        group: root
+        mode: 0644
+
+
+
+  handlers: #создадим handler для рестарта и включения сервиса при загрузке
+    - name: start keepalived ha1
+      systemd:
+        state: started
+        name: keepalived
+        enabled: yes
+
+- name: Loadbalancers | Сonfigure Keepalived HA2
+  hosts: ha2
+  become: yes
+
+  tasks:
+    - name: Configure Keepalived HA2
+      template:
+        src: ha2_keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+        owner: root
+        group: root
+        mode: 0644
+
+  handlers: #создадим handler для рестарта и включения сервиса при загрузке
+    - name: start keepalived ha2
+      systemd:
+        state: started
+        name: keepalived
+        enabled: yes

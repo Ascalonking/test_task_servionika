@@ -1,0 +1,14 @@
+vrrp_instance VI_1 {
+state MASTER
+interface enp0s3 #введите имя интерфейса. [чтобы увидеть имя интерфейса: $ ip a ]
+virtual_router_id 51
+priority 101 # 101 для мастера. 100 для резервного копирования. [приоритет мастера> приоритет резервного копирования]
+advert_int 1
+authentication {
+auth_type PASS
+auth_pass Passw0rD! #пароль
+}
+virtual_ipaddress {
+192.168.1.100 # используйте виртуальный ip-адрес.
+}
+}
